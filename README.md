@@ -6,7 +6,7 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pipguard)](https://pypi.org/project/pipguard/)
 [![codecov](https://codecov.io/gh/shenxianpeng/pipguard/graph/badge.svg)](https://codecov.io/gh/shenxianpeng/pipguard)
-[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://shenxianpeng.github.io/pipguard/)
+[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://shenxianpeng.dev/pipguard/)
 [![Python Version](https://img.shields.io/pypi/pyversions/pipguard)](https://pypi.org/project/pipguard/)
 
 **Python supply chain security tool. Scan packages before installing them.**
@@ -56,7 +56,7 @@ and blind to a brand-new attack. pipguard checks what the *code actually does*
 in the CVE check too. In a head-to-head on a credential-stealing `setup.py`,
 pip-audit reports *"No known vulnerabilities found"* while pipguard blocks it.
 Reproduce it: `python benchmark/compare_pip_audit.py`.
-See the full [comparison](https://shenxianpeng.github.io/pipguard/comparison/).
+See the full [comparison](https://shenxianpeng.dev/pipguard/comparison/).
 
 ## Installation
 
@@ -73,6 +73,21 @@ uvx pipguard install -r requirements.txt
 # Standard
 pip install pipguard
 ```
+
+> [!IMPORTANT]
+> **eMudhra / emSign CA incident (Oct 2026):** every pip older than 26.2.2 trusts a
+> compromised CA, so anything it downloads, including pipguard itself, can be
+> swapped by a network attacker. Even pip 26.2.2 can still trust it through an
+> un-updated OS trust store. Upgrade pip first, from a hash-pinned wheel:
+>
+> ```bash
+> python -m pip install "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+> ```
+>
+> `pipguard install` now refuses to download through an affected pip and strips
+> the compromised CAs from the trust stores for its own run.
+> `pipguard doctor --online` shows whether your pip trusts them. See
+> [Toolchain Trust](https://shenxianpeng.dev/pipguard/toolchain/).
 
 ## Usage
 
@@ -97,13 +112,16 @@ pipguard install --verbose requests
 
 # Show raw pip install output
 pipguard install --show-pip-output requests
+
+# Check that pip doesn't trust a compromised CA (e.g. eMudhra/emSign)
+pipguard doctor
 ```
 
 By default, pipguard prints a risk summary, expands `CRITICAL` / `HIGH` / `MEDIUM`,
 collapses `LOW` to package-level counts, and keeps successful `pip install` logs quiet.
 Use `--verbose` for full scan details and `--show-pip-output` to restore raw pip logs.
 
-For the full reference — risk levels, exit codes, allowlist, and CI integration — see the **[documentation](https://shenxianpeng.github.io/pipguard/)**.
+For the full reference — risk levels, exit codes, allowlist, and CI integration — see the **[documentation](https://shenxianpeng.dev/pipguard/)**.
 
 ## CI Integration
 
